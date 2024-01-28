@@ -1,0 +1,52 @@
+import React, { useState, useEffect } from 'react';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import axios from 'axios';
+
+function App() {
+  const [products, setProducts] = useState([]);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = () => {
+    axios.get('http://localhost:5000/api/products')
+      .then(response => {
+        setProducts(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  const handleChange = (selectedId) => {
+    setSelectedProductId(selectedId);
+
+    const product = products.find(x => x.id === selectedId);
+    setSelectedProduct(product);
+  };
+
+  return (
+    <div className="App">
+      <div className='products'>
+        {products.map(product => (
+          <ButtonGroup key={product.id} variant="contained" aria-label="outlined primary button group">
+            <Button onClick={() => handleChange(product.id)}>Id-{product.id}</Button>
+          </ButtonGroup>
+        ))}
+        {selectedProduct && (
+          <div>
+            <h2>{selectedProduct.name}</h2>
+            <p>{selectedProduct.Description}</p>
+            <p>Price: ${selectedProduct.price}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;

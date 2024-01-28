@@ -1,0 +1,104 @@
+import React, { useState, useEffect } from 'react';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+import axios from 'axios';
+
+function App() {
+  const [products, setProducts] = useState([]);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = () => {
+    axios.get('http://localhost:5000/api/products')
+      .then(response => {
+        setProducts(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  const handleChange = (event: SelectChangeEvent) => {
+    const selectedId = event.target.value;
+    setSelectedProductId(selectedId);
+
+    const product = products.find(x => x.id === selectedId);
+    setSelectedProduct(product);
+  };
+
+  return (
+    <div className="App">
+      <div className='products'>
+        <Box sx={{ minWidth: 120 }}>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">Select Product</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={selectedProductId}
+              label="Select Product"
+              onChange={handleChange}
+            >
+              {products.map(product => (
+                <MenuItem key={product.id} value={product.id}>{`Product ${product.id}`}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
+        {selectedProduct && (
+          <div>
+            <h2>{selectedProduct.name}</h2>
+            <p>{selectedProduct.Description}</p>
+            <p>Price: ${selectedProduct.price}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const data = require('./products.json');
+
+app.use(express.json());
+app.use(cors());
+
+app.get('/api/products', (req, res) => {
+  res.json(data);
+});
+
+app.listen(5000, () => {
+  console.log('Server started on port 5000');
+});
+[
+    {
+        "id":1,
+        "name":"Product 1",
+        "Description": "Description of Product 1",
+        "price": 100
+    },
+    {
+        "id":2,
+        "name":"Product 2",
+        "Description": "Description of Product 2",
+        "price": 200
+    },
+    {
+        "id":3,
+        "name":"Product 3",
+        "Description": "Description of Product 3",
+        "price": 300
+    }
+]
